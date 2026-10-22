@@ -162,15 +162,49 @@ button.danger {
   display:flex;
   align-items:center;
   text-align:left;
-  padding:8px;
-  border-color:transparent;
+  padding:7px 8px 7px 4px;
+  border:1px solid transparent;
+  border-radius:7px;
   background:transparent;
-  gap:6px
+  color:var(--ink);
+  cursor:pointer;
+  gap:6px;
+  user-select:none;
+  -webkit-user-select:none
+}
+.passage-item:hover {
+  background:var(--soft)
+}
+.passage-item:focus-visible {
+  outline:2px solid var(--accent);
+  outline-offset:1px
 }
 .passage-item.active {
   background:var(--accent2);
   border-color:var(--accent);
   color:var(--ink)
+}
+.passage-item .grip {
+  cursor:grab;
+  color:var(--muted);
+  touch-action:none;
+  padding:4px 3px;
+  font-size:13px;
+  line-height:1;
+  letter-spacing:-3px;
+  flex:none
+}
+.passage-item.dragging {
+  opacity:.45
+}
+.passage-item.drop-before {
+  box-shadow:0 -2px 0 var(--accent)
+}
+.passage-item.drop-after {
+  box-shadow:0 2px 0 var(--accent)
+}
+.side-list.reordering,.side-list.reordering .grip {
+  cursor:grabbing
 }
 .passage-item .name {
   overflow:hidden;
@@ -255,84 +289,91 @@ details>.detail-body {
 .nav-tools {
   margin-bottom:8px
 }
-.graph {
-  display:flex;
-  flex-direction:column;
-  gap:12px;
-  padding:8px 0;
-  overflow:visible
+.graph,.compact-nav {
+  overflow-x:auto;
+  padding:6px 0
 }
-.graph-level {
-  display:flex;
-  justify-content:center;
-  align-items:flex-start;
-  gap:8px;
-  flex-wrap:wrap;
-  position:relative
+.graph svg,.compact-nav svg {
+  display:block
 }
-.graph-node {
-  max-width:180px;
-  min-width:100px;
-  border:1px solid var(--line);
-  border-radius:7px;
-  padding:8px;
-  background:var(--panel);
-  color:var(--ink);
-  font-size:12px;
-  text-align:center;
-  white-space:normal;
-  overflow-wrap:anywhere
+.graph-note {
+  margin-top:6px
 }
-.graph-node.active {
-  border:2px solid var(--accent);
-  background:var(--accent2);
-  font-weight:750
+.gnode {
+  cursor:pointer;
+  outline:none
 }
-.graph-node.orphan {
-  border-style:dashed
+.gnode rect {
+  fill:var(--panel);
+  stroke:var(--line);
+  stroke-width:1.2
 }
-.compact-nav {
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  padding:8px 0;
-  gap:0
+.gnode:hover rect,.gnode:focus-visible rect {
+  stroke:var(--accent)
 }
-.compact-node {
-  width:23px;
-  height:18px;
-  padding:0;
-  margin:0;
-  border:1px solid var(--muted);
-  border-radius:2px;
-  background:var(--panel);
-  position:relative;
-  z-index:1
+.gnode text {
+  fill:var(--ink);
+  font-size:11px;
+  pointer-events:none
 }
-.compact-node.active {
-  background:var(--accent);
-  border:2px solid var(--accent)
+.gnode.active rect {
+  fill:var(--accent2);
+  stroke:var(--accent);
+  stroke-width:2
 }
-.compact-row {
-  display:flex;
-  justify-content:center;
-  gap:12px;
-  position:relative;
-  padding:0 0 0;
-  margin:0
+.gnode.active text {
+  font-weight:700
 }
-.compact-connect {
-  height:13px;
-  width:2px;
-  background:var(--muted);
-  margin:0 auto
+.gnode.orphan rect {
+  stroke-dasharray:4 3
 }
-.compact-branches {
-  height:12px;
-  width:100%;
-  border-top:1px solid var(--muted);
-  position:relative;
-  margin-top:5px
+.gnode.compact rect {
+  stroke:var(--muted)
+}
+.gnode.compact.active rect {
+  fill:var(--accent);
+  stroke:var(--accent)
+}
+.gnode .dot {
+  fill:var(--muted)
+}
+.gnode.active .dot {
+  fill:var(--panel)
+}
+.edge {
+  fill:none;
+  stroke:var(--muted);
+  stroke-width:1.2;
+  opacity:.55
+}
+.edge.back {
+  stroke-dasharray:4 3
+}
+.edge.hl {
+  stroke:var(--accent);
+  stroke-width:1.8;
+  opacity:1
+}
+.arrow {
+  fill:var(--muted);
+  opacity:.75
+}
+.arrow.hl {
+  fill:var(--accent);
+  opacity:1
+}
+.glabel {
+  fill:var(--muted);
+  font-size:11px
+}
+.gsep {
+  stroke:var(--line);
+  stroke-dasharray:3 3
+}
+@media(min-width:1151px) {
+  body[data-nav=map] .layout {
+    grid-template-columns:350px minmax(330px,1fr) minmax(320px,36%)
+  }
 }
 .editor-col .panelbody {
   padding:12px
@@ -557,6 +598,119 @@ details>.detail-body {
 .muted {
   color:var(--muted)
 }
+.reader-text {
+  margin:0 0 var(--para-space,1em);
+  text-indent:var(--para-indent,0)
+}
+.editor {
+  text-indent:var(--para-indent,0)
+}
+.reader-text>div,.reader-text>p,.editor>div,.editor>p {
+  margin:var(--para-space,1em) 0 0
+}
+.reader-text>div:first-child,.reader-text>p:first-child,.editor>div:first-child,.editor>p:first-child {
+  margin-top:0
+}
+.unit-row {
+  display:grid;
+  grid-template-columns:1fr 66px;
+  gap:4px
+}
+.preset-row {
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  margin-top:8px
+}
+.preset-row button {
+  padding:4px 8px;
+  font-size:12px
+}
+.modal {
+  position:fixed;
+  inset:0;
+  background:#0009;
+  z-index:30;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:12px
+}
+.modal-card {
+  background:var(--panel);
+  color:var(--ink);
+  border:1px solid var(--line);
+  border-radius:12px;
+  box-shadow:0 12px 44px #0006;
+  width:min(1120px,100%);
+  height:min(780px,100%);
+  display:flex;
+  flex-direction:column;
+  overflow:hidden
+}
+.modal-body {
+  display:grid;
+  grid-template-columns:320px minmax(0,1fr);
+  flex:1;
+  min-height:0
+}
+.modal-controls {
+  padding:4px 14px 14px;
+  overflow:auto;
+  border-right:1px solid var(--line)
+}
+.modal-preview {
+  display:flex;
+  flex-direction:column;
+  min-height:0;
+  background:var(--soft)
+}
+.modal-preview iframe {
+  flex:1;
+  border:0;
+  width:100%;
+  min-height:300px;
+  background:#fff
+}
+.preview-caption {
+  padding:6px 12px;
+  border-top:1px solid var(--line)
+}
+.modal-foot {
+  display:flex;
+  gap:8px;
+  align-items:center;
+  padding:10px 14px;
+  border-top:1px solid var(--line)
+}
+.group-title {
+  font-size:12px;
+  font-weight:700;
+  color:var(--muted);
+  margin:16px 0 8px;
+  padding-bottom:4px;
+  border-bottom:1px solid var(--line)
+}
+.check {
+  display:flex;
+  gap:7px;
+  align-items:center;
+  font-size:13px;
+  margin:0 0 8px
+}
+.hint {
+  margin:-4px 0 10px
+}
+@media(max-width:800px) {
+  .modal-body {
+    grid-template-columns:1fr;
+    grid-template-rows:minmax(0,1fr) minmax(0,1fr)
+  }
+  .modal-controls {
+    border-right:0;
+    border-bottom:1px solid var(--line)
+  }
+}
 @media(max-width:1150px) {
   .layout {
     grid-template-columns:220px minmax(300px,1fr)
@@ -691,6 +845,45 @@ details>.detail-body {
          </label>
          <input id="readerLine" max="2.8" min="1" step=".1" type="number" value="1.8"/>
         </div>
+       </div>
+       <div style="margin-top:8px">
+        <div class="field">
+         <label>
+          Space after paragraph
+         </label>
+         <div class="unit-row">
+          <input id="paraSpace" max="20" min="0" step="0.1" type="number" value="1"/>
+          <select aria-label="Spacing unit" id="paraSpaceUnit">
+           <option selected="" value="em">em</option>
+           <option value="px">px</option>
+           <option value="pt">pt</option>
+          </select>
+         </div>
+        </div>
+        <div class="field">
+         <label>
+          First-line indent
+         </label>
+         <div class="unit-row">
+          <input id="paraIndent" max="20" min="0" step="0.1" type="number" value="0"/>
+          <select aria-label="Indent unit" id="paraIndentUnit">
+           <option selected="" value="em">em</option>
+           <option value="px">px</option>
+           <option value="pt">pt</option>
+          </select>
+         </div>
+        </div>
+       </div>
+       <div class="small" style="margin-top:6px">
+        1em equals the current text size.
+       </div>
+       <div class="preset-row">
+        <button id="paraPresetBlock" type="button">
+         Spaced paragraphs
+        </button>
+        <button id="paraPresetBook" type="button">
+         Book style (indented)
+        </button>
        </div>
        <hr style="border:0;border-top:1px solid var(--line);margin:12px 0"/>
        <label style="display:flex;align-items:center;gap:7px;text-transform:none;font-size:13px">
@@ -919,6 +1112,217 @@ details>.detail-body {
     </div>
    </section>
   </div>
+  <div aria-labelledby="exportModalTitle" aria-modal="true" class="modal hidden" id="exportModal" role="dialog">
+   <div class="modal-card">
+    <div class="panelhead">
+     <span id="exportModalTitle">
+      Export standalone HTML
+     </span>
+     <div class="spacer">
+     </div>
+     <button aria-label="Close" id="exportClose" type="button">
+      ✕
+     </button>
+    </div>
+    <div class="modal-body">
+     <div class="modal-controls" id="exportControls">
+      <div class="group-title">
+       Page
+      </div>
+      <div class="field">
+       <label>
+        Page theme
+       </label>
+       <select data-exp="theme">
+        <option value="editor">
+         Match the editor
+        </option>
+        <option value="light">
+         Light
+        </option>
+        <option value="dark">
+         Dark
+        </option>
+        <option value="parchment">
+         Parchment
+        </option>
+       </select>
+      </div>
+      <div class="field">
+       <label>
+        Column width
+       </label>
+       <div class="unit-row">
+        <input data-exp="widthValue" min="10" step="1" type="number"/>
+        <select data-exp="widthUnit">
+         <option value="px">
+          px
+         </option>
+         <option value="em">
+          em
+         </option>
+         <option value="ch">
+          ch
+         </option>
+        </select>
+       </div>
+      </div>
+      <div class="small hint">
+       Books usually sit around 600–700px, or 60–75ch.
+      </div>
+      <div class="settings-grid">
+       <div class="field">
+        <label>
+         Side margin (px)
+        </label>
+        <input data-exp="padSide" min="0" step="1" type="number"/>
+       </div>
+       <div class="field">
+        <label>
+         Top margin (px)
+        </label>
+        <input data-exp="padTop" min="0" step="1" type="number"/>
+       </div>
+       <div class="field">
+        <label>
+         Bottom margin (px)
+        </label>
+        <input data-exp="padBottom" min="0" step="1" type="number"/>
+       </div>
+      </div>
+      <div class="group-title">
+       Text
+      </div>
+      <div class="field">
+       <label>
+        Alignment
+       </label>
+       <select data-exp="align">
+        <option value="left">
+         Left (ragged right)
+        </option>
+        <option value="justify">
+         Justified
+        </option>
+       </select>
+      </div>
+      <label class="check">
+       <input data-exp="hyphens" type="checkbox"/>
+       Hyphenate words (English)
+      </label>
+      <div class="field">
+       <label>
+        Font
+       </label>
+       <select data-exp="font">
+       </select>
+      </div>
+      <div class="settings-grid">
+       <div class="field">
+        <label>
+         Text size (px)
+        </label>
+        <input data-exp="size" min="8" step="1" type="number"/>
+       </div>
+       <div class="field">
+        <label>
+         Line spacing
+        </label>
+        <input data-exp="line" min="1" step=".1" type="number"/>
+       </div>
+      </div>
+      <div class="field">
+       <label>
+        Space after paragraph
+       </label>
+       <div class="unit-row">
+        <input data-exp="space" min="0" step=".1" type="number"/>
+        <select data-exp="spaceUnit">
+         <option value="em">
+          em
+         </option>
+         <option value="px">
+          px
+         </option>
+         <option value="pt">
+          pt
+         </option>
+        </select>
+       </div>
+      </div>
+      <div class="field">
+       <label>
+        First-line indent
+       </label>
+       <div class="unit-row">
+        <input data-exp="indent" min="0" step=".1" type="number"/>
+        <select data-exp="indentUnit">
+         <option value="em">
+          em
+         </option>
+         <option value="px">
+          px
+         </option>
+         <option value="pt">
+          pt
+         </option>
+        </select>
+       </div>
+      </div>
+      <div class="small hint">
+       Leave size, spacing, and indent empty to use the editor's typography settings.
+      </div>
+      <div class="group-title">
+       Title
+      </div>
+      <label class="check">
+       <input data-exp="showTitle" type="checkbox"/>
+       Show story title
+      </label>
+      <div class="settings-grid">
+       <div class="field">
+        <label>
+         Title alignment
+        </label>
+        <select data-exp="titleAlign">
+         <option value="left">
+          Left
+         </option>
+         <option value="center">
+          Centered
+         </option>
+        </select>
+       </div>
+       <div class="field">
+        <label>
+         Title size (× text)
+        </label>
+        <input data-exp="titleScale" min="1" step=".1" type="number"/>
+       </div>
+      </div>
+     </div>
+     <div class="modal-preview">
+      <iframe id="exportPreview" sandbox="allow-scripts" title="Export preview">
+      </iframe>
+      <div class="small preview-caption" id="exportCaption">
+      </div>
+     </div>
+    </div>
+    <div class="modal-foot">
+     <button id="exportReset" type="button">
+      Reset to defaults
+     </button>
+     <div class="spacer">
+     </div>
+     <button id="exportCancel" type="button">
+      Cancel
+     </button>
+     <button class="primary" id="exportGo" type="button">
+      Export HTML
+     </button>
+    </div>
+   </div>
+  </div>
   <div class="toast" id="toast">
   </div>
   <script>
@@ -969,14 +1373,42 @@ function download(content,name,type) {
   a.click();
   setTimeout(()=>URL.revokeObjectURL(a.href),1000)
 }
-function themeApply() {
+function choiceDefaults(theme) {
+  if(theme==='custom')return {
+    border:customTheme.muted,fill:customTheme.panel,altBorder:customTheme.line,altFill:customTheme.soft,altInk:customTheme.muted
+  }
+  ;
+  return ( {
+    light: {
+      border:'#858b94',fill:'#ffffff',altBorder:'#c7cbd2',altFill:'#f0f1f3',altInk:'#737985'
+    }
+    ,dark: {
+      border:'#9299a5',fill:'#22252b',altBorder:'#505661',altFill:'#2a2e35',altInk:'#a3a9b4'
+    }
+    ,parchment: {
+      border:'#9a805f',fill:'#f6ecd5',altBorder:'#cbb894',altFill:'#eee0c3',altInk:'#927e62'
+    }
+  }
+  )[theme]||choiceDefaults('light')
+}
+// resetChoice: also move the choice-box colours to match the theme (done when the user changes theme, not when loading a project)
+function themeApply(resetChoice) {
   let theme=$('themeSelect').value;
   document.body.dataset.theme=theme==='custom'?'custom':theme;
   if(theme==='custom') {
     let r=document.documentElement.style;
     Object.entries(customTheme).forEach(([k,v])=>r.setProperty('--'+k,v));
     $('customThemeDetails').classList.remove('hidden')
-  } else $('customThemeDetails').classList.add('hidden')
+  } else $('customThemeDetails').classList.add('hidden');
+  if(resetChoice===true) {
+    const c=choiceDefaults(theme);
+    $('choiceBorderColor').value=c.border;
+    $('choiceFillColor').value=c.fill;
+    $('altBorderColor').value=c.altBorder;
+    $('altFillColor').value=c.altFill;
+    $('altTextColor').value=c.altInk;
+    renderReader()
+  }
 }
 function buildCustomTheme() {
   let labels= {
@@ -985,101 +1417,297 @@ function buildCustomTheme() {
   ;
   $('customThemeControls').innerHTML=Object.entries(labels).map(([k,label])=>`<div class="custom-color-row"><span>${label}</span><input type="color" data-theme-color="${k}" value="${customTheme[k]}"></div>`).join('');
   $('customThemeControls').querySelectorAll('[data-theme-color]').forEach(i=>i.oninput=()=> {
-    customTheme[i.dataset.themeColor]=i.value;themeApply()
+    customTheme[i.dataset.themeColor]=i.value;themeApply(true)
   }
   )
 }
-function ensureTarget(name) {
+// Insert a new passage directly after the passage it arose from (and after any
+// passages already branching off that one), instead of at the end of the list.
+function isDescendantOf(p,ancestorId) {
+  let seen=new Set(),cur=p;
+  while(cur&&cur.origin&&!seen.has(cur.id)) {
+    seen.add(cur.id);
+    if(cur.origin===ancestorId)return true;
+    cur=passage(cur.origin)
+  }
+  return false
+}
+function insertPassageAfter(np,sourceId) {
+  const arr=story.passages,idx=arr.findIndex(p=>p.id===sourceId);
+  if(idx<0) {
+    arr.push(np);
+    return
+  }
+  np.origin=sourceId;
+  let j=idx+1;
+  while(j<arr.length&&isDescendantOf(arr[j],sourceId))j++;
+  arr.splice(j,0,np)
+}
+function ensureTarget(name,afterId) {
   name=name.trim();
   let found=story.passages.find(p=>p.title.toLowerCase()===name.toLowerCase());
   if(found)return found.id;
   let id=uid();
-  story.passages.push( {
+  insertPassageAfter( {
     id,title:name||'New passage',blocks:[ {
       id:uid(),type:'text',html:''
     }
     ]
   }
-  );
+  ,afterId);
   return id
 }
-function renderPassages() {
-  let list=$('passageList'),graph=$('passageGraph'),compact=$('compactNav'),mode=$('navMode').value;
-  list.classList.toggle('hidden',mode!=='list');
-  graph.classList.toggle('hidden',mode!=='map');
-  compact.classList.toggle('hidden',mode!=='compact');
-  list.innerHTML=story.passages.map(p=>`<button class="passage-item ${p.id===currentId?'active':''}" data-passage="${p.id}"><span class="name">${esc(p.title)}</span><span class="small">${p.blocks.length}</span></button>`).join('');
-  list.querySelectorAll('[data-passage]').forEach(b=>b.onclick=()=>selectPassage(b.dataset.passage));
-  // connection map uses depth from start, with unvisited passages shown in a final row
-  const depths=new Map([[story.start,0]]),queue=[story.start],activeRoute=new Set();
-  while(queue.length) {
-    let id=queue.shift(),p=passage(id),d=depths.get(id)||0;
-    if(!p)continue;
-    activeRoute.add(id);
-    for(let b of p.blocks) {
-      let targets=b.type==='choice'?(b.options.length?[((b.options.find(o=>o.id===selectedChoices[b.id])||b.options[0]).target)]:[]):b.type==='jump'?[b.target]:[];
-      for(let t of targets)if(passage(t)&&!depths.has(t)) {
-        depths.set(t,d+1);
-        queue.push(t)
+// ---- Passage list: drag to reorder (mouse, touch via the handle, Alt+Arrow keys) ----
+let dragState=null,suppressClick=false;
+function movePassage(id,beforeId) {
+  const arr=story.passages,i=arr.findIndex(p=>p.id===id);
+  if(i<0)return;
+  const [p]=arr.splice(i,1);
+  let j=beforeId?arr.findIndex(x=>x.id===beforeId):arr.length;
+  if(j<0)j=arr.length;
+  arr.splice(j,0,p);
+  renderPassages()
+}
+function shiftPassage(id,delta) {
+  const arr=story.passages,i=arr.findIndex(p=>p.id===id),j=i+delta;
+  if(i<0||j<0||j>=arr.length)return;
+  [arr[i],arr[j]]=[arr[j],arr[i]];
+  renderPassages();
+  const el=[...$('passageList').children].find(c=>c.dataset.passage===id);
+  if(el)el.focus()
+}
+function clearDropMarks() {
+  $('passageList').querySelectorAll('.drop-before,.drop-after,.dragging').forEach(n=>n.classList.remove('drop-before','drop-after','dragging'));
+  $('passageList').classList.remove('reordering')
+}
+function startPassageDrag(e,item) {
+  if(e.button!==0)return;
+  const grip=e.target.closest('.grip');
+  if(e.pointerType!=='mouse'&&!grip)return;
+  dragState= {
+    id:item.dataset.passage,item,x:e.clientX,y:e.clientY,pid:e.pointerId,active:false,beforeId:undefined
+  }
+  ;
+  if(grip) {
+    try {
+      grip.setPointerCapture(e.pointerId)
+    } catch(_) {
+    }
+  }
+}
+document.addEventListener('pointermove',e=> {
+  const d=dragState;
+  if(!d||e.pointerId!==d.pid)return;
+  const list=$('passageList');
+  if(!d.active) {
+    if(Math.hypot(e.clientX-d.x,e.clientY-d.y)<5)return;
+    d.active=true;
+    d.item.classList.add('dragging');
+    list.classList.add('reordering')
+  }
+  const items=[...list.querySelectorAll('.passage-item')].filter(it=>it!==d.item);
+  items.forEach(it=>it.classList.remove('drop-before','drop-after'));
+  const before=items.find(it=> {
+    const r=it.getBoundingClientRect();
+    return e.clientY<r.top+r.height/2
+  }
+  );
+  d.beforeId=before?before.dataset.passage:null;
+  if(before)before.classList.add('drop-before');
+  else if(items.length)items[items.length-1].classList.add('drop-after');
+  const sc=list.closest('.panelbody');
+  if(sc) {
+    const r=sc.getBoundingClientRect();
+    if(e.clientY<r.top+28)sc.scrollTop-=12;
+    else if(e.clientY>r.bottom-28)sc.scrollTop+=12
+  }
+}
+);
+function endPassageDrag(e,commit) {
+  const d=dragState;
+  if(!d||e.pointerId!==d.pid)return;
+  dragState=null;
+  if(!d.active)return;
+  suppressClick=true;
+  setTimeout(()=>suppressClick=false,80);
+  clearDropMarks();
+  if(commit&&d.beforeId!==undefined)movePassage(d.id,d.beforeId)
+}
+document.addEventListener('pointerup',e=>endPassageDrag(e,true));
+document.addEventListener('pointercancel',e=>endPassageDrag(e,false));
+function renderPassageList(list) {
+  list.innerHTML=story.passages.map(p=>`<div class="passage-item ${p.id===currentId?'active':''}" data-passage="${p.id}" role="button" tabindex="0" title="Drag the ⋮⋮ handle to reorder (or Alt+↑/↓)"><span class="grip" aria-hidden="true">⋮⋮</span><span class="name">${esc(p.title)}</span>${p.id===story.start?'<span class="small" title="Starting passage">▸ start</span>':''}<span class="small">${p.blocks.length}</span></div>`).join('');
+  list.querySelectorAll('.passage-item').forEach(item=> {
+    const id=item.dataset.passage;
+    item.onclick=()=> {
+      if(!suppressClick)selectPassage(id)
+    }
+    ;
+    item.onkeydown=e=> {
+      if(e.key==='Enter'||e.key===' ') {
+        e.preventDefault();selectPassage(id)
+      } else if(e.altKey&&(e.key==='ArrowUp'||e.key==='ArrowDown')) {
+        e.preventDefault();shiftPassage(id,e.key==='ArrowUp'?-1:1)
+      }
+    }
+    ;
+    item.onpointerdown=e=>startPassageDrag(e,item)
+  }
+  )
+}
+// ---- Connection map and compact connections: one layered layout, drawn as SVG with arrows ----
+function graphModel() {
+  const byId=new Map(story.passages.map(p=>[p.id,p])),ids=story.passages.map(p=>p.id);
+  const out=new Map(ids.map(i=>[i,[]])),inn=new Map(ids.map(i=>[i,[]])),edges=[],seen=new Set();
+  for(const p of story.passages)for(const b of p.blocks) {
+    const ts=b.type==='choice'?(b.options||[]).map(o=>o.target):b.type==='jump'?[b.target]:[];
+    for(const t of ts) {
+      if(!byId.has(t)||t===p.id)continue;
+      const k=p.id+'>'+t;
+      if(seen.has(k))continue;
+      seen.add(k);
+      edges.push( {
+        from:p.id,to:t
+      }
+      );
+      out.get(p.id).push(t);
+      inn.get(t).push(p.id)
+    }
+  }
+  const start=byId.has(story.start)?story.start:ids[0],depth=new Map(),layers=[];
+  const bfs=(roots,base)=> {
+    const q=[];
+    for(const r of roots)if(!depth.has(r)) {
+      depth.set(r,base);q.push(r)
+    }
+    while(q.length) {
+      const id=q.shift(),d=depth.get(id);
+      (layers[d]=layers[d]||[]).push(id);
+      for(const t of out.get(id))if(!depth.has(t)) {
+        depth.set(t,d+1);q.push(t)
       }
     }
   }
-  let routeIds=new Set(activeRoute);
-  for(const pid of activeRoute) {
-    const pp=passage(pid);
-    for(const bb of pp?.blocks||[]) {
-      if(bb.type==='choice')for(const op of bb.options)if(passage(op.target))routeIds.add(op.target)
-    }
+  ;
+  bfs([start],0);
+  let sectionStart=null;
+  const unreached=ids.filter(i=>!depth.has(i));
+  if(unreached.length) {
+    sectionStart=layers.length;
+    const us=new Set(unreached);
+    bfs(unreached.filter(i=>!inn.get(i).some(f=>us.has(f)&&f!==i)),sectionStart);
+    for(const i of unreached)if(!depth.has(i))bfs([i],sectionStart)
   }
-  let max=Math.max(0,...depths.values());
-  graph.innerHTML='';
-  for(let d=0;d<=max;d++) {
-    let row=document.createElement('div');
-    row.className='graph-level';
-    story.passages.filter(p=>routeIds.has(p.id)&&(depths.get(p.id)??max+1)===d).forEach(p=> {
-      let b=document.createElement('button');b.className='graph-node '+(p.id===currentId?'active':'');b.textContent=p.title;b.onclick=()=>selectPassage(p.id);row.appendChild(b)
-    }
-    );
-    if(row.childElementCount)graph.appendChild(row)
+  return {
+    byId,edges,inn,layers,sectionStart,start,unreached:new Set(unreached)
   }
-  let orphans=story.passages.filter(p=>!depths.has(p.id)&&routeIds.has(p.id));
-  if(orphans.length) {
-    let row=document.createElement('div');
-    row.className='graph-level';
-    orphans.forEach(p=> {
-      let b=document.createElement('button');b.className='graph-node orphan '+(p.id===currentId?'active':'');b.textContent=p.title;b.onclick=()=>selectPassage(p.id);row.appendChild(b)
-    }
-    );
-    graph.appendChild(row)
+}
+function drawGraph(el,compact) {
+  const m=graphModel();
+  const c=compact? {
+    nw:18,nh:14,gx:8,gy:16,px:8,py:8,rp:14
   }
-  // compact tree-like topology: rows grouped by depth, no labels; arrows/branches are schematic
-  compact.innerHTML='';
-  let compactDepths=[...Array(max+1)].map((_,d)=>story.passages.filter(p=>(depths.get(p.id)??-1)===d));
-  compactDepths.forEach((ps,d)=> {
-    if(d) {
-      let conn=document.createElement('div');conn.className='compact-connect';compact.appendChild(conn)
+  : {
+    nw:88,nh:28,gx:10,gy:22,px:6,py:8,rp:18
+  }
+  ;
+  const W=Math.max(el.clientWidth||224,150),usable=W-c.px*2-c.rp,cols=Math.max(1,Math.floor((usable+c.gx)/(c.nw+c.gx))),cx=c.px+usable/2;
+  const pos=new Map(),marks=[];
+  let y=c.py,row=0;
+  m.layers.forEach((layer,d)=> {
+    if(!layer)return;
+    if(m.sectionStart!==null&&d===m.sectionStart) {
+      y+=compact?2:6;
+      marks.push(compact?`<line class="gsep" x1="${c.px}" x2="${W-c.px}" y1="${y}" y2="${y}"/>`:`<text class="glabel" x="${c.px}" y="${y+10}">Not reachable from start</text>`);
+      y+=compact?10:18
     }
-    let row=document.createElement('div');row.className='compact-row';ps.forEach(p=> {
-      let b=document.createElement('button');b.className='compact-node '+(p.id===currentId?'active':'');b.title=p.title;b.setAttribute('aria-label',p.title);b.onclick=()=>selectPassage(p.id);row.appendChild(b)
+    const want=id=> {
+      const xs=m.inn.get(id).filter(f=>pos.has(f)).map(f=>pos.get(f).x+c.nw/2);
+      return xs.length?xs.reduce((a,b)=>a+b)/xs.length:null
     }
-    );compact.appendChild(row)
+    ;
+    const items=layer.map((id,i)=>( {
+      id,i,w:want(id)
+    }
+    )).sort((a,b)=>((a.w??cx)-(b.w??cx))||(a.i-b.i));
+    for(let k=0;k<items.length;k+=cols) {
+      const chunk=items.slice(k,k+cols),xs=chunk.map(it=>(it.w??cx)-c.nw/2),minX=c.px,maxX=c.px+usable-c.nw;
+      for(let i=0;i<xs.length;i++)xs[i]=Math.max(xs[i],i?xs[i-1]+c.nw+c.gx:minX);
+      if(xs[xs.length-1]>maxX) {
+        xs[xs.length-1]=maxX;
+        for(let i=xs.length-2;i>=0;i--)xs[i]=Math.min(xs[i],xs[i+1]-c.nw-c.gx)
+      }
+      chunk.forEach((it,i)=>pos.set(it.id, {
+        x:xs[i],y,row
+      }
+      ));
+      row++;y+=c.nh+c.gy
+    }
   }
   );
-  if(orphans.length) {
-    let conn=document.createElement('div');
-    conn.className='compact-connect';
-    compact.appendChild(conn);
-    let row=document.createElement('div');
-    row.className='compact-row';
-    orphans.forEach(p=> {
-      let b=document.createElement('button');b.className='compact-node '+(p.id===currentId?'active':'');b.title=p.title;b.onclick=()=>selectPassage(p.id);row.appendChild(b)
+  const H=y-c.gy+c.py,plain=[],hot=[];
+  for(const e of m.edges) {
+    const a=pos.get(e.from),b=pos.get(e.to);
+    if(!a||!b)continue;
+    let d,cls='edge';
+    if(b.row>a.row) {
+      const x1=a.x+c.nw/2,y1=a.y+c.nh,x2=b.x+c.nw/2,y2=b.y,k=Math.max(8,Math.min(40,(y2-y1)/2));
+      d=`M${x1} ${y1}C${x1} ${y1+k} ${x2} ${y2-k} ${x2} ${y2}`
+    } else if(b.row===a.row) {
+      const x1=a.x+c.nw/2,x2=b.x+c.nw/2,lift=Math.min(compact?12:18,6+Math.abs(x2-x1)/8);
+      d=`M${x1} ${a.y}C${x1} ${a.y-lift} ${x2} ${a.y-lift} ${x2} ${a.y}`
+    } else {
+      const x1=a.x+c.nw,y1=a.y+c.nh/2,x2=b.x+c.nw,y2=b.y+c.nh/2,o=c.rp-3;
+      d=`M${x1} ${y1}C${x1+o} ${y1} ${x2+o} ${y2} ${x2} ${y2}`;
+      cls+=' back'
     }
-    );
-    compact.appendChild(row)
+    const hl=e.from===currentId||e.to===currentId;
+    (hl?hot:plain).push(`<path class="${cls}${hl?' hl':''}" d="${d}" marker-end="url(#${hl?'gArrH':'gArr'})"/>`)
   }
+  const ms=compact?5:7,trunc=(s,n)=>s.length>n?s.slice(0,n-1)+'…':s;
+  const nodes=story.passages.map(p=> {
+    const q=pos.get(p.id);
+    if(!q)return '';
+    const cls=['gnode',compact?'compact':'',p.id===currentId?'active':'',m.unreached.has(p.id)?'orphan':''].filter(Boolean).join(' '),isStart=p.id===m.start;
+    const inner=compact?(isStart?`<circle class="dot" cx="${c.nw/2}" cy="${c.nh/2}" r="2.2"/>`:''):`<text x="${c.nw/2}" y="${c.nh/2}" dy=".35em" text-anchor="middle">${esc(trunc((isStart?'▸ ':'')+p.title,12))}</text>`;
+    return `<g class="${cls}" data-passage="${p.id}" transform="translate(${q.x} ${q.y})" tabindex="0" role="button" aria-label="${esc(p.title)}"><title>${esc(p.title)}${isStart?' (start)':''}</title><rect width="${c.nw}" height="${c.nh}" rx="${compact?3:6}"/>${inner}</g>`
+  }
+  ).join('');
+  const marker=(id,cl)=>`<marker id="${id}" viewBox="0 0 8 8" refX="7" refY="4" markerUnits="userSpaceOnUse" markerWidth="${ms}" markerHeight="${ms}" orient="auto"><path class="arrow ${cl}" d="M0 0L8 4L0 8z"/></marker>`;
+  el.innerHTML=`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="group" aria-label="${compact?'Compact passage connections':'Passage connection map'}"><defs>${marker('gArr','')}${marker('gArrH','hl')}</defs>${marks.join('')}${plain.join('')}${hot.join('')}${nodes}</svg>`+(compact?'':'<div class="small graph-note">Arrows follow choices and passage links. Dashed arrows loop back to an earlier passage. The current passage’s links are highlighted.</div>');
+  el.querySelectorAll('.gnode').forEach(g=> {
+    const id=g.dataset.passage;
+    g.onclick=()=>selectPassage(id);
+    g.onkeydown=e=> {
+      if(e.key==='Enter'||e.key===' ') {
+        e.preventDefault();selectPassage(id)
+      }
+    }
+  }
+  )
+}
+function renderPassages() {
+  const list=$('passageList'),graph=$('passageGraph'),compact=$('compactNav'),mode=$('navMode').value;
+  document.body.dataset.nav=mode;
+  list.classList.toggle('hidden',mode!=='list');
+  graph.classList.toggle('hidden',mode!=='map');
+  compact.classList.toggle('hidden',mode!=='compact');
+  list.innerHTML='';graph.innerHTML='';compact.innerHTML='';
+  if(mode==='list')renderPassageList(list);
+  else if(mode==='map')drawGraph(graph,false);
+  else drawGraph(compact,true);
   $('startPassage').innerHTML=story.passages.map(p=>`<option value="${p.id}" ${p.id===story.start?'selected':''}>${esc(p.title)}</option>`).join('');
   $('storyTitle').value=story.title||''
 }
+let resizeTimer=null;
+window.addEventListener('resize',()=> {
+  clearTimeout(resizeTimer);
+  resizeTimer=setTimeout(()=> {
+    if($('navMode').value!=='list')renderPassages()
+  }
+  ,150)
+}
+);
 function selectPassage(id) {
   currentId=id;
   renderAll()
@@ -1126,7 +1754,7 @@ function renderEditor() {
   $('blocks').querySelectorAll('[data-opt-dest]').forEach(el=> {
     const commit=()=> {
       let b=current().blocks.find(x=>x.id===el.dataset.optDest),o=b?.options.find(x=>x.id===el.dataset.opt);if(o) {
-        o.target=ensureTarget(el.value||'New passage');renderPassages();renderReader()
+        o.target=ensureTarget(el.value||'New passage',current().id);renderPassages();renderReader()
       }
     }
     ;el.addEventListener('change',commit);el.addEventListener('keydown',e=> {
@@ -1187,16 +1815,16 @@ function moveBlock(id,delta) {
   [p.blocks[i],p.blocks[j]]=[p.blocks[j],p.blocks[i]];
   renderAll()
 }
-function addPassage(title='New passage',select=true) {
+function addPassage(title='New passage',select=true,afterId=currentId) {
   const cleanTitle=String(title||'New passage').trim()||'New passage';
   let id=uid();
-  story.passages.push( {
+  insertPassageAfter( {
     id,title:cleanTitle,blocks:[ {
       id:uid(),type:'text',html:''
     }
     ]
   }
-  );
+  ,afterId);
   if(select)currentId=id;
   renderAll();
   return id;
@@ -1206,7 +1834,7 @@ function addPassageHere() {
   const requestedTitle=prompt('New passage title','New passage');
   if(requestedTitle===null)return;
   const title=requestedTitle.trim()||'New passage';
-  const id=ensureTarget(title);
+  const id=ensureTarget(title,source.id);
   const target=passage(id);
   if(!target)return;
   // Put a passage link at the end of the current passage so the new passage
@@ -1222,16 +1850,56 @@ function addPassageHere() {
   renderAll();
   toast('New passage added');
 }
+// ---- Paragraph spacing / indent ----
+function getParaStyle() {
+  const n=(id,d)=> {
+    const v=parseFloat($(id).value);
+    return isFinite(v)&&v>=0?v:d
+  }
+  ;
+  return {
+    space:n('paraSpace',1),spaceUnit:$('paraSpaceUnit').value,indent:n('paraIndent',0),indentUnit:$('paraIndentUnit').value
+  }
+}
+const cssLen=(n,u)=>(Math.round(n*1000)/1000)+u;
+// ---- Keep choice text readable on its fill colour ----
+function parseColor(c) {
+  c=String(c||'').trim();
+  let m;
+  if(m=c.match(/^#([0-9a-f]{3})$/i))return m[1].split('').map(x=>parseInt(x+x,16));
+  if(m=c.match(/^#([0-9a-f]{6})$/i))return [0,2,4].map(i=>parseInt(m[1].substr(i,2),16));
+  if(m=c.match(/rgba?\(([^)]+)\)/i))return m[1].split(/[ ,\/]+/).slice(0,3).map(Number);
+  return null
+}
+function lum(rgb) {
+  const f=v=> {
+    v/=255;return v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4)
+  }
+  ;
+  return .2126*f(rgb[0])+.7152*f(rgb[1])+.0722*f(rgb[2])
+}
+function readableOn(fill,ink) {
+  const f=parseColor(fill),i=parseColor(ink);
+  if(!f||!i||f.some(isNaN)||i.some(isNaN))return ink;
+  const lf=lum(f),li=lum(i),ratio=(Math.max(lf,li)+.05)/(Math.min(lf,li)+.05);
+  return ratio>=3?ink:(lf>.5?'#111111':'#ffffff')
+}
 function getStyle() {
   const global=$('globalChoiceStyle').checked;
   return {
     font:$('readerFont').value,size:$('readerSize').value||18,line:$('readerLine').value||1.8,globalChoice:global,choiceFont:global?$('choiceFont').value:'inherit',choiceSize:global?$('choiceSize').value:18,altSize:global?$('altSize').value:15,choiceBorder:$('choiceBorderColor').value,choiceFill:$('choiceFillColor').value,altBorder:$('altBorderColor').value,altFill:$('altFillColor').value,altInk:$('altTextColor').value
   }
 }
+function applyParaVars() {
+  const ps=getParaStyle();
+  document.body.style.setProperty('--para-space',cssLen(ps.space,ps.spaceUnit));
+  document.body.style.setProperty('--para-indent',cssLen(ps.indent,ps.indentUnit))
+}
 function renderReader() {
+  applyParaVars();
   let root=$('reader');
   root.innerHTML='';
-  let style=getStyle();
+  let style=getStyle(),PS=getParaStyle(),inkNow=getComputedStyle(root).color;
   root.style.fontFamily=style.font;
   root.style.color='var(--ink)';
   root.style.setProperty('--reader-size',style.size+'px');
@@ -1280,6 +1948,7 @@ function renderReader() {
         let span=document.createElement('button');
         span.className='inline-choice selected';
         span.innerHTML=opt.html||esc(opt.text);
+        span.style.color=readableOn(style.choiceFill,inkNow);
         span.style.fontFamily=st.font&&st.font!=='inherit'?st.font:(style.globalChoice&&style.choiceFont!=='inherit'?style.choiceFont:style.font);
         span.style.fontSize=(style.globalChoice?style.choiceSize:(st.size||style.size))+'px';
         span.onclick=()=> {
@@ -1327,7 +1996,7 @@ function renderAll() {
   renderReader()
 }
 $('navMode').onchange=renderPassages;
-$('themeSelect').onchange=themeApply;
+$('themeSelect').onchange=()=>themeApply(true);
 $('readerFont').onchange=renderReader;
 let lastReaderSize=$('readerSize').value;
 $('readerSize').oninput=()=> {
@@ -1339,6 +2008,19 @@ $('readerSize').oninput=()=> {
   renderReader();
 };
 $('readerLine').oninput=renderReader;
+['paraSpace','paraSpaceUnit','paraIndent','paraIndentUnit'].forEach(id=> {
+  $(id).addEventListener('input',renderReader);
+  $(id).addEventListener('change',renderReader)
+}
+);
+$('paraPresetBlock').onclick=()=> {
+  $('paraSpace').value=1;$('paraSpaceUnit').value='em';$('paraIndent').value=0;$('paraIndentUnit').value='em';renderReader()
+}
+;
+$('paraPresetBook').onclick=()=> {
+  $('paraSpace').value=0;$('paraSpaceUnit').value='em';$('paraIndent').value=1.5;$('paraIndentUnit').value='em';renderReader()
+}
+;
 ['choiceFont','choiceSize','altSize','choiceBorderColor','choiceFillColor','altBorderColor','altFillColor','altTextColor'].forEach(id=>$(id).addEventListener('input',renderReader));
 $('globalChoiceStyle').onchange=()=> {
   $('choiceGlobalControls').classList.toggle('hidden',!$('globalChoiceStyle').checked);
@@ -1347,7 +2029,12 @@ $('globalChoiceStyle').onchange=()=> {
   renderReader()
 }
 ;
-$('newPassageBtn').onclick=()=>addPassage(prompt('Passage title','New passage')||'New passage');
+$('newPassageBtn').onclick=()=> {
+  const t=prompt('Passage title','New passage');
+  if(t===null)return;
+  addPassage(t||'New passage')
+}
+;
 $('addTextBtn').onclick=()=> {
   current().blocks.push( {
     id:uid(),type:'text',html:''
@@ -1374,7 +2061,7 @@ $('addPassageHereBtn').onclick=addPassageHere;
 $('addLinkBtn').onclick=()=> {
   const target=prompt('Link to which passage?',story.passages.find(p=>p.id!==currentId)?.title||'');
   if(target===null)return;
-  const id=ensureTarget(target.trim()||'New passage');
+  const id=ensureTarget(target.trim()||'New passage',current().id);
   current().blocks.push( {
     id:uid(),type:'jump',target:id
   }
@@ -1411,6 +2098,10 @@ $('deletePassageBtn').onclick=()=> {
   }
   let p=current();
   if(!confirm(`Delete “${p.title}”? Links to it may need to be repaired.`))return;
+  story.passages.forEach(x=> {
+    if(x.origin===p.id)x.origin=p.origin
+  }
+  );
   story.passages=story.passages.filter(x=>x.id!==p.id);
   if(story.start===p.id)story.start=story.passages[0].id;
   currentId=story.start;
@@ -1474,9 +2165,9 @@ $('downloadProject').onclick=()=> {
   name=name.replace(/\.json$/i,'').replace(/[^a-z0-9-_ ]/gi,'_').trim()||'branchwriter-project';
   let payload= {
     story,selectedChoices,settings: {
-      theme:$('themeSelect').value,customTheme,readerFont:$('readerFont').value,readerSize:$('readerSize').value,readerLine:$('readerLine').value,globalChoiceStyle:$('globalChoiceStyle').checked,choiceFont:$('choiceFont').value,choiceSize:$('choiceSize').value,altSize:$('altSize').value,choiceBorderColor:$('choiceBorderColor').value,choiceFillColor:$('choiceFillColor').value,altBorderColor:$('altBorderColor').value,altFillColor:$('altFillColor').value,altTextColor:$('altTextColor').value
+      theme:$('themeSelect').value,customTheme,readerFont:$('readerFont').value,readerSize:$('readerSize').value,readerLine:$('readerLine').value,globalChoiceStyle:$('globalChoiceStyle').checked,choiceFont:$('choiceFont').value,choiceSize:$('choiceSize').value,altSize:$('altSize').value,choiceBorderColor:$('choiceBorderColor').value,choiceFillColor:$('choiceFillColor').value,altBorderColor:$('altBorderColor').value,altFillColor:$('altFillColor').value,altTextColor:$('altTextColor').value,paraSpace:$('paraSpace').value,paraSpaceUnit:$('paraSpaceUnit').value,paraIndent:$('paraIndent').value,paraIndentUnit:$('paraIndentUnit').value
     }
-    ,individualStyles,collapsedBlocks,notesText
+    ,individualStyles,collapsedBlocks,notesText,exportOpts
   }
   ;
   download(JSON.stringify(payload,null,2),name+'.json','application/json')
@@ -1500,13 +2191,19 @@ $('loadProject').onchange=async e=> {
       }
       ;
       notesText=data.notesText||'';
+      exportOpts= {
+        ...EXPORT_DEFAULTS,...(data.exportOpts|| {
+        }
+        )
+      }
+      ;
       $('notesEditor').value=notesText;
       let s=data.settings|| {
       }
       ;
       if(s.theme)$('themeSelect').value=s.theme;
       if(s.customTheme)customTheme=s.customTheme;
-      ['readerFont','readerSize','readerLine','globalChoiceStyle','choiceFont','choiceSize','altSize','choiceBorderColor','choiceFillColor','altBorderColor','altFillColor','altTextColor'].forEach(k=> {
+      ['readerFont','readerSize','readerLine','globalChoiceStyle','choiceFont','choiceSize','altSize','choiceBorderColor','choiceFillColor','altBorderColor','altFillColor','altTextColor','paraSpace','paraSpaceUnit','paraIndent','paraIndentUnit'].forEach(k=> {
         if(s[k]!==undefined)$(k).type==='checkbox'?$(k).checked=s[k]:$(k).value=s[k]
       }
       )
@@ -1529,17 +2226,227 @@ $('loadProject').onchange=async e=> {
   e.target.value=''
 }
 ;
-function exportHtml() {
-  const data=JSON.stringify(story).replace(/</g,'\\u003c');
-  const st=getStyle();
-  const title=esc(story.title||'Untitled Story');
-  const css=`body{max-width:780px;margin:45px auto;padding:0 22px;color:#222;background:#fff;font:18px/1.8 Georgia,serif}.title{font-weight:700;font-size:28px;line-height:1.25;margin-bottom:26px}.para{margin:0 0 18px}.picked{display:inline-block;border:1.5px solid ${st.choiceBorder};background:${st.choiceFill==='transparent'?'transparent':st.choiceFill};color:inherit;border-radius:5px;padding:2px 7px;font:inherit;line-height:1.55;cursor:pointer}.alternatives{display:flex;flex-direction:column;align-items:flex-start;gap:3px;margin:3px 0 15px 14px;padding-left:9px;border-left:1px solid #ddd}.alt{max-width:95%;border:1px solid ${st.altBorder};border-radius:5px;background:${st.altFill};color:${st.altInk};padding:3px 8px;cursor:pointer;font-size:${st.altSize}px}.alt:hover{filter:brightness(.96)}@media(max-width:600px){body{margin:22px auto}}`;
-  const html=`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title}</title><!-- Styles: theme variables, layout, editor blocks, reader preview, and responsive rules. -->
-<style>${css}</style></head><body><h1 class="title" id="title"></h1><main id="story"></main><script>const DATA=${data};let chosen={};const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));const find=id=>DATA.passages.find(p=>p.id===id);function render(){document.getElementById('title').textContent=DATA.title||'Untitled Story';const root=document.getElementById('story');root.innerHTML='';let seen=new Set();function draw(id,d=0){if(d>60||seen.has(id)){const p=document.createElement('p');p.textContent='[Story path stopped: circular passage reference]';root.appendChild(p);return}const pass=find(id);if(!pass)return;seen.add(id);for(const b of pass.blocks){if(b.type==='text'){const p=document.createElement('p');p.className='para';p.style.fontFamily=${JSON.stringify(st.font)};p.style.fontSize=${JSON.stringify(st.size+'px')};p.style.lineHeight=${JSON.stringify(st.line)};p.innerHTML=b.html||'';root.appendChild(p)}else if(b.type==='choice'){let key=chosen[b.id],opt=b.options.find(o=>o.id===key)||b.options[0];if(!opt)continue;chosen[b.id]=opt.id;const picked=document.createElement('button');picked.className='picked';picked.style.fontFamily=${JSON.stringify(st.globalChoice&&st.choiceFont!=='inherit'?st.choiceFont:st.font)};picked.style.fontSize=${JSON.stringify(st.choiceSize+'px')};picked.innerHTML=opt.html||esc(opt.text);picked.onclick=()=>{chosen[b.id]=opt.id;render()};root.appendChild(picked);const alts=document.createElement('div');alts.className='alternatives';b.options.filter(o=>o.id!==opt.id).forEach(o=>{const btn=document.createElement('button');btn.className='alt';btn.style.fontFamily=picked.style.fontFamily;btn.innerHTML=o.html||esc(o.text);btn.onclick=()=>{chosen[b.id]=o.id;render()};alts.appendChild(btn)});if(alts.childElementCount)root.appendChild(alts);draw(opt.target,d+1);return}else if(b.type==='jump'){draw(b.target,d+1);return}}}draw(DATA.start)}render();<\/script></body></html>`;
-  download(html,(story.title||'story').replace(/[^a-z0-9-_]+/gi,'_')+'.html','text/html');
+// ---- Standalone export: options dialog with live preview ----
+const EXPORT_DEFAULTS= {
+  theme:'editor',widthValue:780,widthUnit:'px',padSide:22,padTop:45,padBottom:60,align:'left',hyphens:false,font:'',size:'',line:'',space:'',spaceUnit:'em',indent:'',indentUnit:'em',showTitle:true,titleAlign:'left',titleScale:1.6
+}
+;
+let exportOpts= {
+  ...EXPORT_DEFAULTS
+}
+;
+function exportPalette(theme) {
+  if(theme==='editor')theme=$('themeSelect').value;
+  if(theme==='custom')return {
+    bg:customTheme.panel,ink:customTheme.ink,muted:customTheme.muted,line:customTheme.line
+  }
+  ;
+  return ( {
+    light: {
+      bg:'#ffffff',ink:'#222222',muted:'#707782',line:'#d9dde3'
+    }
+    ,dark: {
+      bg:'#17191d',ink:'#e8eaf0',muted:'#a3a9b4',line:'#3c414b'
+    }
+    ,parchment: {
+      bg:'#f6ecd5',ink:'#443522',muted:'#86745a',line:'#d0bd99'
+    }
+  }
+  )[theme]||{
+    bg:'#ffffff',ink:'#222222',muted:'#707782',line:'#d9dde3'
+  }
+}
+// Runs inside the exported page (it is serialised with toString), so it must not use anything from the editor.
+function storyRuntime(DATA,CFG) {
+  const chosen= {
+  }
+  ;
+  const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>( {
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }
+  [c]));
+  const find=id=>DATA.passages.find(p=>p.id===id);
+  const root=document.getElementById('story'),titleEl=document.getElementById('title');
+  if(titleEl)titleEl.textContent=DATA.title||'Untitled Story';
+  function render() {
+    root.innerHTML='';
+    const seen=new Set();
+    function draw(id,d) {
+      if(d>60||seen.has(id)) {
+        const n=document.createElement('p');
+        n.className='note';
+        n.textContent='[Story path stopped: circular passage reference]';
+        root.appendChild(n);
+        return
+      }
+      const pass=find(id);
+      if(!pass)return;
+      seen.add(id);
+      for(const b of pass.blocks) {
+        if(b.type==='text') {
+          const p=document.createElement('p');
+          p.className='para';
+          p.innerHTML=b.html||'';
+          root.appendChild(p)
+        } else if(b.type==='choice') {
+          const opts=b.options||[],opt=opts.find(o=>o.id===chosen[b.id])||opts[0];
+          if(!opt)continue;
+          chosen[b.id]=opt.id;
+          const st=CFG.globalChoice? {
+          }
+          :(CFG.individual[b.id]|| {
+          }
+          );
+          const fam=st.font&&st.font!=='inherit'?st.font:(CFG.globalChoice&&CFG.choiceFont!=='inherit'?CFG.choiceFont:CFG.font);
+          const base=CFG.globalChoice?CFG.choiceSize:(Number(st.size)||CFG.size/CFG.scale)*CFG.scale;
+          const alt=CFG.globalChoice?CFG.altSize:base*.84;
+          const picked=document.createElement('button');
+          picked.className='picked';
+          picked.style.fontFamily=fam;
+          picked.style.fontSize=base+'px';
+          picked.innerHTML=opt.html||esc(opt.text);
+          picked.onclick=()=> {
+            chosen[b.id]=opt.id;render()
+          }
+          ;
+          root.appendChild(picked);
+          const alts=document.createElement('div');
+          alts.className='alternatives';
+          opts.filter(o=>o.id!==opt.id).forEach(o=> {
+            const btn=document.createElement('button');
+            btn.className='alt';
+            btn.style.fontFamily=fam;
+            btn.style.fontSize=alt+'px';
+            btn.innerHTML=o.html||esc(o.text);
+            btn.onclick=()=> {
+              chosen[b.id]=o.id;render()
+            }
+            ;
+            alts.appendChild(btn)
+          }
+          );
+          if(alts.childElementCount)root.appendChild(alts);
+          if(opt.target&&opt.target!==pass.id)draw(opt.target,d+1);
+        } else if(b.type==='jump') {
+          draw(b.target,d+1);
+          return
+        }
+      }
+    }
+    draw(DATA.start,0)
+  }
+  render()
+}
+function buildExportHtml(o) {
+  o= {
+    ...EXPORT_DEFAULTS,...o
+  }
+  ;
+  const st=getStyle(),pa=getParaStyle(),pal=exportPalette(o.theme);
+  const num=(v,d,min=0)=> {
+    if(v===''||v==null)return d;
+    v=Number(v);
+    return isFinite(v)&&v>=min?v:d
+  }
+  ;
+  const font=o.font||st.font,size=num(o.size,Number(st.size)||18,6),line=num(o.line,Number(st.line)||1.8,0.8);
+  const scale=size/(Number(st.size)||18);
+  const space=cssLen(num(o.space,pa.space),o.space===''||o.space==null?pa.spaceUnit:o.spaceUnit);
+  const indent=cssLen(num(o.indent,pa.indent),o.indent===''||o.indent==null?pa.indentUnit:o.indentUnit);
+  const width=cssLen(num(o.widthValue,780,1)||780,['px','em','ch'].includes(o.widthUnit)?o.widthUnit:'px');
+  const side=num(o.padSide,22),top=num(o.padTop,45),bottom=num(o.padBottom,60);
+  const edTheme=$('themeSelect').value,cc=(o.theme==='editor'||o.theme===edTheme)?{border:st.choiceBorder,fill:st.choiceFill,altBorder:st.altBorder,altFill:st.altFill,altInk:st.altInk}:choiceDefaults(o.theme);
+  const pickedInk=readableOn(cc.fill,pal.ink),title=esc(story.title||'Untitled Story');
+  const css=`html{background:${pal.bg}}body{margin:0;color:${pal.ink};background:${pal.bg};font-family:${font};font-size:${size}px;line-height:${line};-webkit-text-size-adjust:100%}`+
+  `.book{box-sizing:content-box;max-width:${width};margin:0 auto;padding:${top}px ${side}px ${bottom}px;text-align:${o.align==='justify'?'justify':'left'};${o.hyphens?'hyphens:auto;-webkit-hyphens:auto;':''}overflow-wrap:break-word}`+
+  `.title{font-weight:700;font-size:${num(o.titleScale,1.6,0.5)}em;line-height:1.25;margin:0 0 1.4em;text-align:${o.titleAlign==='center'?'center':'left'};hyphens:none}`+
+  `.para{margin:0 0 ${space};text-indent:${indent}}.para>div,.para>p{margin:${space} 0 0}.para>div:first-child,.para>p:first-child{margin-top:0}.note{color:${pal.muted}}`+
+  `.picked{display:inline-block;max-width:100%;border:1.5px solid ${cc.border};background:${cc.fill};color:${pickedInk};border-radius:5px;padding:2px 7px;font:inherit;line-height:1.55;text-align:left;text-indent:0;cursor:pointer}`+
+  `.alternatives{display:flex;flex-direction:column;align-items:flex-start;gap:3px;margin:3px 0 15px 14px;padding-left:9px;border-left:1px solid ${pal.line}}`+
+  `.alt{max-width:95%;border:1px solid ${cc.altBorder};border-radius:5px;background:${cc.altFill};color:${cc.altInk};padding:3px 8px;cursor:pointer;text-align:left}.alt:hover{filter:brightness(.96)}`+
+  `@media(max-width:600px){.book{padding:${Math.min(top,24)}px ${Math.min(side,18)}px ${Math.min(bottom,40)}px}}`;
+  const cfg= {
+    font,size,scale,globalChoice:st.globalChoice,choiceFont:st.choiceFont,choiceSize:(Number(st.choiceSize)||18)*scale,altSize:(Number(st.altSize)||15)*scale,individual:individualStyles
+  }
+  ;
+  const safe=v=>JSON.stringify(v).replace(/</g,'\\u003c');
+  return `<!doctype html>\n<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title}</title>\n<style>${css}</style></head><body><div class="book">${o.showTitle?'<h1 class="title" id="title"></h1>':''}<main id="story"></main></div><script>(${storyRuntime.toString()})(${safe(story)},${safe(cfg)});<\/script></body></html>`
+}
+const expEl=k=>document.querySelector(`#exportControls [data-exp="${k}"]`);
+function readExportFields() {
+  document.querySelectorAll('#exportControls [data-exp]').forEach(el=> {
+    exportOpts[el.dataset.exp]=el.type==='checkbox'?el.checked:(el.type==='number'?(el.value===''?'':Number(el.value)):el.value)
+  }
+  )
+}
+function writeExportFields() {
+  document.querySelectorAll('#exportControls [data-exp]').forEach(el=> {
+    const v=exportOpts[el.dataset.exp];
+    if(el.type==='checkbox')el.checked=!!v;
+    else el.value=v==null?'':v
+  }
+  );
+  const st=getStyle(),pa=getParaStyle();
+  expEl('size').placeholder=st.size+' (editor)';
+  expEl('line').placeholder=st.line+' (editor)';
+  expEl('space').placeholder=pa.space+pa.spaceUnit+' (editor)';
+  expEl('indent').placeholder=pa.indent+pa.indentUnit+' (editor)'
+}
+let exportTimer=null;
+function refreshExportPreview() {
+  clearTimeout(exportTimer);
+  exportTimer=setTimeout(()=> {
+    const f=$('exportPreview');
+    f.srcdoc=buildExportHtml(exportOpts);
+    $('exportCaption').textContent='Live preview — shown in a '+Math.round(f.clientWidth)+'px-wide window. A wider column than that will simply fill the window.'
+  }
+  ,120)
+}
+function openExportDialog() {
+  expEl('font').innerHTML='<option value="">Same as editor</option>'+$('readerFont').innerHTML;
+  writeExportFields();
+  $('exportModal').classList.remove('hidden');
+  refreshExportPreview();
+  $('exportGo').focus()
+}
+function closeExportDialog() {
+  $('exportModal').classList.add('hidden');
+  $('exportPreview').srcdoc=''
+}
+$('exportControls').addEventListener('input',()=> {
+  readExportFields();refreshExportPreview()
+}
+);
+$('exportControls').addEventListener('change',()=> {
+  readExportFields();refreshExportPreview()
+}
+);
+$('exportClose').onclick=$('exportCancel').onclick=closeExportDialog;
+$('exportModal').addEventListener('mousedown',e=> {
+  if(e.target===$('exportModal'))closeExportDialog()
+}
+);
+document.addEventListener('keydown',e=> {
+  if(e.key==='Escape'&&!$('exportModal').classList.contains('hidden'))closeExportDialog()
+}
+);
+$('exportReset').onclick=()=> {
+  exportOpts= {
+    ...EXPORT_DEFAULTS
+  }
+  ;
+  writeExportFields();
+  refreshExportPreview()
+}
+;
+$('exportGo').onclick=()=> {
+  readExportFields();
+  download(buildExportHtml(exportOpts),(story.title||'story').replace(/[^a-z0-9-_]+/gi,'_')+'.html','text/html');
+  closeExportDialog();
   toast('Standalone HTML exported')
 }
-$('exportBtn').onclick=exportHtml;
+;
+$('exportBtn').onclick=openExportDialog;
 function exportRawText() {
   // Export every passage, including all branches, as a readable plain-text plan.
   const lines = [story.title || 'Untitled Story', '='.repeat((story.title || 'Untitled Story').length), ''];
