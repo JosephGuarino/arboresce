@@ -1,9 +1,3 @@
-    _       _                            
-   /_\  _ _| |__  ___ _ _ ___ ___ __ ___ 
-  / _ \| '_| '_ \/ _ \ '_/ -_|_-</ _/ -_)
- /_/ \_\_| |_.__/\___/_| \___/__/\__\___|
-                                         
-
 Arboresce
 (noun)
 :the state of being arborescent: treelike form or appearance (as in minerals)
