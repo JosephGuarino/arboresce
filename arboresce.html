@@ -1326,11 +1326,10 @@ details>.detail-body {
   <div class="toast" id="toast">
   </div>
   <script>
-   // Branchwriter editor logic: story data, navigation, passage editing, preview, and exports.
+   // Story data, navigation, passage editing, preview, and exports.
 const $ = (id) => document.getElementById(id);
 const uid = () => Math.random().toString(36).slice(2, 10);
 // A new project starts with one empty passage. The passage is deliberately
-// blank so the author can begin writing immediately.
 let story = {
   title: 'Untitled Story',
   start: 'opening',
@@ -1391,7 +1390,7 @@ function choiceDefaults(theme) {
   }
   )[theme]||choiceDefaults('light')
 }
-// resetChoice: also move the choice-box colours to match the theme (done when the user changes theme, not when loading a project)
+// resetChoice
 function themeApply(resetChoice) {
   let theme=$('themeSelect').value;
   document.body.dataset.theme=theme==='custom'?'custom':theme;
@@ -1421,8 +1420,7 @@ function buildCustomTheme() {
   }
   )
 }
-// Insert a new passage directly after the passage it arose from (and after any
-// passages already branching off that one), instead of at the end of the list.
+// Insert a new passage directly after the passage it arose from
 function isDescendantOf(p,ancestorId) {
   let seen=new Set(),cur=p;
   while(cur&&cur.origin&&!seen.has(cur.id)) {
@@ -1457,7 +1455,7 @@ function ensureTarget(name,afterId) {
   ,afterId);
   return id
 }
-// ---- Passage list: drag to reorder (mouse, touch via the handle, Alt+Arrow keys) ----
+// Passage list
 let dragState=null,suppressClick=false;
 function movePassage(id,beforeId) {
   const arr=story.passages,i=arr.findIndex(p=>p.id===id);
@@ -1555,7 +1553,7 @@ function renderPassageList(list) {
   }
   )
 }
-// ---- Connection map and compact connections: one layered layout, drawn as SVG with arrows ----
+// Connection map and compact connections
 function graphModel() {
   const byId=new Map(story.passages.map(p=>[p.id,p])),ids=story.passages.map(p=>p.id);
   const out=new Map(ids.map(i=>[i,[]])),inn=new Map(ids.map(i=>[i,[]])),edges=[],seen=new Set();
@@ -1837,8 +1835,7 @@ function addPassageHere() {
   const id=ensureTarget(title,source.id);
   const target=passage(id);
   if(!target)return;
-  // Put a passage link at the end of the current passage so the new passage
-  // is reachable from the point where it was created.
+  // Put a passage link at the end of the current passage
   source.blocks.push( {
     id:uid(),type:'jump',target:id
   }
@@ -1850,7 +1847,7 @@ function addPassageHere() {
   renderAll();
   toast('New passage added');
 }
-// ---- Paragraph spacing / indent ----
+// Paragraph spacing
 function getParaStyle() {
   const n=(id,d)=> {
     const v=parseFloat($(id).value);
@@ -1862,7 +1859,7 @@ function getParaStyle() {
   }
 }
 const cssLen=(n,u)=>(Math.round(n*1000)/1000)+u;
-// ---- Keep choice text readable on its fill colour ----
+// Keep choice text readable
 function parseColor(c) {
   c=String(c||'').trim();
   let m;
@@ -1974,10 +1971,6 @@ function renderReader() {
         }
         if(alts.childElementCount)root.appendChild(alts);
 
-        // A choice can now act as a branch point inside a linear passage.
-        // Render the selected branch here, then continue through the remaining
-        // blocks in the current passage so paragraphs added after the choice
-        // remain part of the main story flow.
         if(opt.target && opt.target!==p.id) {
           draw(opt.target,depth+1);
         }
@@ -2226,7 +2219,7 @@ $('loadProject').onchange=async e=> {
   e.target.value=''
 }
 ;
-// ---- Standalone export: options dialog with live preview ----
+//Standalone export
 const EXPORT_DEFAULTS= {
   theme:'editor',widthValue:780,widthUnit:'px',padSide:22,padTop:45,padBottom:60,align:'left',hyphens:false,font:'',size:'',line:'',space:'',spaceUnit:'em',indent:'',indentUnit:'em',showTitle:true,titleAlign:'left',titleScale:1.6
 }
@@ -2256,7 +2249,7 @@ function exportPalette(theme) {
     bg:'#ffffff',ink:'#222222',muted:'#707782',line:'#d9dde3'
   }
 }
-// Runs inside the exported page (it is serialised with toString), so it must not use anything from the editor.
+// serialised with toString, so it must not use anything from the editor.
 function storyRuntime(DATA,CFG) {
   const chosen= {
   }
@@ -2448,7 +2441,7 @@ $('exportGo').onclick=()=> {
 ;
 $('exportBtn').onclick=openExportDialog;
 function exportRawText() {
-  // Export every passage, including all branches, as a readable plain-text plan.
+  // Export plain-text
   const lines = [story.title || 'Untitled Story', '='.repeat((story.title || 'Untitled Story').length), ''];
   for (const p of story.passages) {
     lines.push(`# ${p.title}${p.id === story.start ? ' (START)' : ''}`, '');
